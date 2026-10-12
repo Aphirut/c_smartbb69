@@ -399,6 +399,55 @@ if (!isset($_SESSION['ss_school_id'])) {
         .ab-pink { background: #fdf2f8; color: var(--pink); }
         .ab-pink:hover { background: var(--pink); box-shadow: 0 4px 12px rgba(236,72,153,0.35); }
 
+        /* ===== แบบ พต.19 - ใบสำคัญรับเงิน ===== */
+        .pt19-paper {
+            background: #fff;
+            color: #0f172a;
+            font-size: 0.95rem;
+            line-height: 1.9;
+            padding: 1.5rem 2rem;
+            border: 1px solid var(--border-soft);
+            border-radius: var(--radius-sm);
+        }
+        .pt19-form-tag {
+            display: inline-block;
+            border: 1px solid #334155;
+            padding: 4px 16px;
+            font-weight: 600;
+        }
+        .pt19-in {
+            border: none;
+            border-bottom: 1px dotted #475569;
+            background: transparent;
+            padding: 0 4px;
+            min-width: 60px;
+            font-family: inherit;
+            color: inherit;
+            outline: none;
+        }
+        .pt19-in:focus { background: #fffbeb; }
+        .pt19-in.wide { min-width: 320px; }
+        .pt19-in.num { width: 110px; text-align: right; }
+        .pt19-in.sm { width: 64px; text-align: center; }
+        .pt19-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
+        .pt19-table th,
+        .pt19-table td { border: 1px solid #334155; padding: 4px 8px; vertical-align: middle; }
+        .pt19-table .amt { width: 120px; text-align: right; }
+        .pt19-table .sat { width: 60px; text-align: center; }
+        .pt19-note { font-size: 0.8rem; color: var(--text-muted); }
+
+        @media print {
+            body * { visibility: hidden !important; }
+            #pt19Paper, #pt19Paper * { visibility: visible !important; }
+            .modal, .modal-dialog, .modal-content, .modal-body {
+                position: static !important; transform: none !important;
+                border: 0 !important; box-shadow: none !important;
+                max-height: none !important; overflow: visible !important;
+            }
+            #pt19Paper { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; }
+            .pt19-in { border-bottom-color: #000; }
+        }
+
         /* ===== DataTables Custom Styling ===== */
         .dataTables_wrapper { padding: 1.25rem 1.5rem; }
         .dataTables_wrapper .dataTables_filter input {
@@ -649,6 +698,7 @@ if (!isset($_SESSION['ss_school_id'])) {
                                     // === เอกสารเบิกจ่าย (ไอคอนเรียงแถวเดียว) ===
                                     echo "<td>";
                                     echo "<div class='action-group'>";
+                                    echo "<a class='action-btn-icon ab-success' href='#' data-pt19-id='{$aid}' data-bs-toggle='modal' data-bs-target='#pt19Modal' title='แบบ พต.19 - ใบสำคัญรับเงิน (กรอกข้อมูลจากฐานข้อมูล)'><i class='fas fa-file-signature'></i></a>";
                                     echo "<a class='action-btn-icon ab-gold' href='reports/pt18.php?act_id={$aid}' target='_blank' data-bs-toggle='tooltip' title='ใบสำคัญรับเงินค่าวิทยากร (แบบ พต.18)'><i class='fas fa-receipt'></i></a>";
                                     echo "<a class='action-btn-icon ab-info' href='new_report/payment_cover.php?act_id={$aid}' target='_blank' data-bs-toggle='tooltip' title='ใบปะหน้ารายการเอกสารประกอบการเบิกเงิน (PDF)'><i class='fas fa-file-pdf'></i></a>";
                                     echo "<a class='action-btn-icon ab-purple' href='new_report/pt17.php?act_id={$aid}' target='_blank' data-bs-toggle='tooltip' title='แบบ พต.17 - สรุปงบหน้าการเบิกเงิน (PDF)'><i class='fas fa-table'></i></a>";
@@ -701,6 +751,261 @@ if (!isset($_SESSION['ss_school_id'])) {
         </div>
     </div>
 </main>
+
+<!-- Modal: แบบ พต.19 -->
+<div class="modal fade" id="pt19Modal" tabindex="-1" aria-labelledby="pt19ModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pt19ModalLabel"><i class="fas fa-file-signature me-2"></i>แบบ พต.19 - ใบสำคัญรับเงิน</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+            </div>
+            <div class="modal-body">
+                <div id="pt19Status" class="small text-muted mb-2"></div>
+
+                <div id="pt19Paper" class="pt19-paper">
+                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                        <span></span>
+                        <span class="pt19-form-tag">แบบ พศ. 19</span>
+                    </div>
+                    <h5 class="text-center fw-bold mt-2 mb-3">ใบสำคัญรับเงิน</h5>
+
+                    <div class="text-end">
+                        ที่ <input type="text" class="pt19-in wide" id="pt19_office">
+                    </div>
+                    <div class="text-end">
+                        วันที่ <input type="text" class="pt19-in sm" id="pt19_day">
+                        เดือน <input type="text" class="pt19-in" id="pt19_month" style="width:120px">
+                        พ.ศ. <input type="text" class="pt19-in sm" id="pt19_year" style="width:80px">
+                    </div>
+                    <div>
+                        ข้าพเจ้า (นาย/นาง/นางสาว) <input type="text" class="pt19-in wide" id="pt19_name">
+                        อยู่บ้านเลขที่ <input type="text" class="pt19-in sm" id="pt19_house" style="width:90px">
+                    </div>
+                    <div>
+                        ที่อยู่ <input type="text" class="pt19-in wide" id="pt19_address" style="min-width:520px">
+                    </div>
+                    <div>
+                        ได้รับเงินจาก <input type="text" class="pt19-in wide" id="pt19_from" style="min-width:380px">
+                    </div>
+                    <div>ดังรายการต่อไปนี้</div>
+
+                    <table class="pt19-table">
+                        <thead>
+                            <tr>
+                                <th rowspan="2" class="text-center">รายการ</th>
+                                <th colspan="2" class="text-center">จำนวนเงิน</th>
+                            </tr>
+                            <tr>
+                                <th class="text-center">บาท</th>
+                                <th class="text-center">สต.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    รับเงินเป็นค่าใช้จ่ายโครงการ/กิจกรรม
+                                    <input type="text" class="pt19-in wide" id="pt19_activity" style="min-width:420px"><br>
+                                    ระหว่างวันที่ <input type="text" class="pt19-in wide" id="pt19_period"><br>
+                                    ณ <input type="text" class="pt19-in wide" id="pt19_place">
+                                </td>
+                                <td class="amt"><input type="number" step="0.01" min="0" class="pt19-in num" id="pt19_amt_project"></td>
+                                <td class="sat" id="pt19_sat_project">00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    เป็นค่าอาหาร สำหรับผู้ร่วมอบรม จำนวน
+                                    <input type="number" min="0" class="pt19-in sm" id="pt19_food_n"> คน ๆ ละ
+                                    <input type="number" min="0" class="pt19-in sm" id="pt19_food_meals"> มื้อ ๆ ละ
+                                    <input type="number" step="0.01" min="0" class="pt19-in sm" id="pt19_food_price"> บาท
+                                    เป็นเงิน
+                                </td>
+                                <td class="amt" id="pt19_baht_food">0</td>
+                                <td class="sat" id="pt19_sat_food">00</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    เป็นค่าอาหารว่างและเครื่องดื่ม สำหรับผู้ร่วมอบรม จำนวน
+                                    <input type="number" min="0" class="pt19-in sm" id="pt19_snack_n"> คน ๆ ละ
+                                    <input type="number" min="0" class="pt19-in sm" id="pt19_snack_rounds"> ครั้ง ๆ ละ
+                                    <input type="number" step="0.01" min="0" class="pt19-in sm" id="pt19_snack_price"> บาท
+                                    เป็นเงิน
+                                </td>
+                                <td class="amt" id="pt19_baht_snack">0</td>
+                                <td class="sat" id="pt19_sat_snack">00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-end fw-bold">รวมทั้งสิ้น</td>
+                                <td class="amt fw-bold" id="pt19_baht_total">0</td>
+                                <td class="sat fw-bold" id="pt19_sat_total">00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="mt-3">
+                        จำนวนเงิน (ตัวอักษร) <strong id="pt19_baht_text">ศูนย์บาทถ้วน</strong>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6 offset-md-6">
+                            <div class="text-center">
+                                ลงชื่อ <input type="text" class="pt19-in wide" id="pt19_sign_receiver" style="min-width:240px"> ผู้รับเงิน<br>
+                                (<input type="text" class="pt19-in wide" id="pt19_sign_receiver_name" style="min-width:260px">)
+                            </div>
+                            <div class="text-center mt-3">
+                                ลงชื่อ <input type="text" class="pt19-in wide" id="pt19_sign_payer" style="min-width:240px"> ผู้จ่ายเงิน<br>
+                                (<input type="text" class="pt19-in wide" id="pt19_sign_payer_name" style="min-width:260px">)<br>
+                                ตำแหน่ง <input type="text" class="pt19-in wide" id="pt19_sign_payer_pos" style="min-width:260px">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <p class="pt19-note mt-2 mb-0">ข้อมูลดึงจากฐานข้อมูลอัตโนมัติ แก้ไขได้ก่อนพิมพ์ ค่าอาหาร/อาหารว่างจะคำนวณจาก จำนวน × ครั้ง × ราคา เมื่อกรอกครบ มิฉะนั้นใช้ยอดในฐานข้อมูล</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">ปิด</button>
+                <button type="button" class="btn btn-warning" id="pt19PrintBtn"><i class="fas fa-print me-1"></i>พิมพ์</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const THAI_MONTHS = ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน',
+                         'กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+    const DIGITS = ['ศูนย์','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];
+    const UNITS = ['','สิบ','ร้อย','พัน','หมื่น','แสน'];
+
+    const $ = (id) => document.getElementById(id);
+    const statusEl = $("pt19Status");
+    let dbAmounts = { food: 0, drink: 0 };
+
+    // แปลงตัวเลข (ต่ำกว่า 1,000,000) เป็นตัวอักษรไทย
+    function readBelowMillion(n) {
+        const s = String(n);
+        const len = s.length;
+        let out = '';
+        for (let i = 0; i < len; i++) {
+            const d = Number(s[i]);
+            const pos = len - i - 1;
+            if (d === 0) continue;
+            if (pos === 0 && d === 1 && len > 1) out += 'เอ็ด';
+            else if (pos === 1 && d === 2) out += 'ยี่';
+            else if (pos === 1 && d === 1) out += '';
+            else out += DIGITS[d];
+            out += UNITS[pos];
+        }
+        return out;
+    }
+
+    function readInt(n) {
+        if (n === 0) return 'ศูนย์';
+        const millions = Math.floor(n / 1000000);
+        const rest = n % 1000000;
+        let out = '';
+        if (millions > 0) out += readBelowMillion(millions) + 'ล้าน';
+        if (rest > 0) out += readBelowMillion(rest);
+        return out;
+    }
+
+    function bahtText(amount) {
+        const baht = Math.floor(amount);
+        const satang = Math.round((amount - baht) * 100);
+        let text = readInt(baht) + 'บาท';
+        text += satang > 0 ? readBelowMillion(satang) + 'สตางค์' : 'ถ้วน';
+        return text;
+    }
+
+    function setSplit(key, amount) {
+        const baht = Math.floor(amount);
+        const sat = Math.round((amount - baht) * 100);
+        const bahtEl = $('pt19_baht_' + key);
+        if (bahtEl) bahtEl.textContent = baht.toLocaleString('th-TH');
+        $('pt19_sat_' + key).textContent = String(sat).padStart(2, '0');
+    }
+
+    function numVal(id) {
+        const v = parseFloat($(id).value);
+        return isNaN(v) ? 0 : v;
+    }
+
+    function recalc() {
+        // ค่าอาหาร / อาหารว่าง: ใช้ จำนวน × ครั้ง × ราคา ถ้ากรอกครบ ไม่งั้นใช้ยอดจากฐานข้อมูล
+        const foodN = numVal('pt19_food_n'), foodM = numVal('pt19_food_meals'), foodP = numVal('pt19_food_price');
+        const food = (foodN && foodM && foodP) ? foodN * foodM * foodP : dbAmounts.food;
+
+        const snackN = numVal('pt19_snack_n'), snackR = numVal('pt19_snack_rounds'), snackP = numVal('pt19_snack_price');
+        const snack = (snackN && snackR && snackP) ? snackN * snackR * snackP : dbAmounts.drink;
+
+        const project = numVal('pt19_amt_project');
+        const total = project + food + snack;
+
+        setSplit('food', food);
+        setSplit('snack', snack);
+        setSplit('total', total);
+        setSplit('project', project);
+        $('pt19_baht_text').textContent = bahtText(total);
+    }
+
+    function setValue(id, value) {
+        $(id).value = value ?? '';
+    }
+
+    function fill(data) {
+        const act = data.activity;
+        const payee = data.payee;
+        const now = new Date();
+
+        dbAmounts = { food: act.food_cost, drink: act.drink_cost };
+
+        setValue('pt19_from', act.school_name);
+        setValue('pt19_office', act.school_name);
+        setValue('pt19_day', now.getDate());
+        setValue('pt19_month', THAI_MONTHS[now.getMonth()]);
+        setValue('pt19_year', now.getFullYear() + 543);
+        setValue('pt19_activity', act.activity_name);
+
+        setValue('pt19_name', payee ? payee.payee_name : '');
+        setValue('pt19_address', payee ? payee.payee_address : '');
+        setValue('pt19_sign_receiver_name', payee ? payee.payee_name : '');
+
+        setValue('pt19_food_n', act.participants);
+        setValue('pt19_snack_n', act.participants);
+        setValue('pt19_food_meals', '');
+        setValue('pt19_food_price', '');
+        setValue('pt19_snack_rounds', '');
+        setValue('pt19_snack_price', '');
+
+        // รายการค่าใช้จ่ายโครงการ = ยอดรวม − ค่าอาหาร − ค่าอาหารว่าง (ไม่ติดลบ)
+        const projectAmt = Math.max(act.total_costs - act.food_cost - act.drink_cost, 0);
+        setValue('pt19_amt_project', projectAmt.toFixed(2));
+
+        statusEl.textContent = payee ? '' : 'ยังไม่พบผู้รับเงินที่ผูกกับโครงการนี้ในการจัดซื้อ/จัดจ้าง กรุณากรอกชื่อและที่อยู่เอง';
+        recalc();
+    }
+
+    async function loadPt19(actId) {
+        statusEl.textContent = 'กำลังดึงข้อมูล...';
+        try {
+            const res = await fetch('get_pt19_data.php?act_id=' + encodeURIComponent(actId), { credentials: 'same-origin' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'ไม่สามารถดึงข้อมูลได้');
+            fill(data);
+        } catch (err) {
+            statusEl.textContent = err.message;
+        }
+    }
+
+    document.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-pt19-id]');
+        if (btn) loadPt19(btn.dataset.pt19Id);
+    });
+
+    $('pt19Paper').addEventListener('input', recalc);
+    $('pt19PrintBtn').addEventListener('click', function () { window.print(); });
+})();
+</script>
 
 <?php include "./modules/footer.inc.php"; ?>
 
